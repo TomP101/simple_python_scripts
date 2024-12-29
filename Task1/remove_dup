@@ -17,6 +17,6 @@ nums = list(dict.fromkeys(nums))
 print("numbers list without duplicates: ")
 print(nums)
 
-print("smalles number in the list: " + str(min(nums)))
+print("smallest number in the list: " + str(min(nums)))
 
 print("biggest number in the list: " + str(max(nums)))
