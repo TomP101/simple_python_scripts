@@ -5,7 +5,7 @@ import platform
 import psutil
 import os
 import subprocess
-import socket
+
 
 parser = argparse.ArgumentParser(description="getting system info")
 parser.add_argument("-d","--distro", action="store_true", help="show distro info")

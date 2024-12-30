@@ -1,0 +1,59 @@
+{
+
+   "Survey_Name": {
+
+      "Page_Name": {
+
+          "Dogs": {
+
+              "Description" : "what are dogs",
+
+              "Answers" : [
+
+                  "dog1",
+
+                  "dog2",
+
+                  "dog3"
+
+              ]
+
+          },
+
+          "Sheeps": {
+
+              "Description" : "what are sheeps",
+
+              "Answers" : [
+
+                  "sheep1",
+
+                  "sheep2",
+
+                  "sheep3"
+
+              ]
+
+          },
+
+         "Ducks": {
+
+              "Description" : "what are ducks",
+
+              "Answers" : [
+
+                  "duck1",
+
+                  "duck2",
+
+                  "duck3"
+
+              ]
+
+          }
+
+      }
+
+   }
+
+}
