@@ -3,10 +3,10 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-# Dane
 menu = [
     {"id": 1, "name": "Margherita", "price": 10},
-    {"id": 2, "name": "Pepperoni", "price": 12}
+    {"id": 2, "name": "Pepperoni", "price": 12},
+    {"id": 3, "name": "Capriciosa", "price": 16}
 ]
 orders = {}
 users = {}
@@ -38,13 +38,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self.wfile.write(json.dumps(order).encode())
                 else:
                     self._set_headers(404)
-                    self.wfile.write(json.dumps({"error": "Order not found"}).encode())
+                    self.wfile.write(json.dumps({"error": "order not found"}).encode())
             except ValueError:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid order ID"}).encode())
+                self.wfile.write(json.dumps({"error": "invalid order ID"}).encode())
         else:
             self._set_headers(404)
-            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+            self.wfile.write(json.dumps({"error": "not found"}).encode())
 
     def do_POST(self):
         global order_id_counter
@@ -66,12 +66,12 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(order).encode())
             else:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid pizza ID or address"}).encode())
+                self.wfile.write(json.dumps({"error": "invalid pizza ID or address"}).encode())
         elif self.path == '/menu':
             token = self.headers.get('Authorization')
             if token != admin_token:
                 self._set_headers(401)
-                self.wfile.write(json.dumps({"error": "Unauthorized"}).encode())
+                self.wfile.write(json.dumps({"error": "wrong token"}).encode())
                 return
             data = self._parse_post_data()
             name = data.get('name')
@@ -83,10 +83,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(new_pizza).encode())
             else:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid data"}).encode())
+                self.wfile.write(json.dumps({"error": "invalid data"}).encode())
         else:
             self._set_headers(404)
-            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+            self.wfile.write(json.dumps({"error": "not found"}).encode())
 
     def do_DELETE(self):
         if self.path.startswith('/order/'):
@@ -95,27 +95,27 @@ class RequestHandler(BaseHTTPRequestHandler):
                 order = orders.get(order_id)
                 if not order:
                     self._set_headers(404)
-                    self.wfile.write(json.dumps({"error": "Order not found"}).encode())
+                    self.wfile.write(json.dumps({"error": "order not found"}).encode())
                     return
                 if self.headers.get('Authorization') == admin_token:
                     del orders[order_id]
                     self._set_headers(200)
-                    self.wfile.write(json.dumps({"message": "Order cancelled by admin"}).encode())
+                    self.wfile.write(json.dumps({"message": "order cancelled by admin"}).encode())
                 elif order['status'] != 'ready_to_be_delivered':
                     del orders[order_id]
                     self._set_headers(200)
-                    self.wfile.write(json.dumps({"message": "Order cancelled"}).encode())
+                    self.wfile.write(json.dumps({"message": "order cancelled"}).encode())
                 else:
                     self._set_headers(400)
-                    self.wfile.write(json.dumps({"error": "Order cannot be cancelled"}).encode())
+                    self.wfile.write(json.dumps({"error": "too late to cancel order"}).encode())
             except ValueError:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid order ID"}).encode())
+                self.wfile.write(json.dumps({"error": "invalid order ID"}).encode())
         elif self.path.startswith('/menu/'):
             token = self.headers.get('Authorization')
             if token != admin_token:
                 self._set_headers(401)
-                self.wfile.write(json.dumps({"error": "Unauthorized"}).encode())
+                self.wfile.write(json.dumps({"error": "wrong token"}).encode())
                 return
             try:
                 pizza_id = int(self.path.split('/')[-1])
@@ -123,22 +123,20 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if pizza:
                     menu.remove(pizza)
                     self._set_headers(200)
-                    self.wfile.write(json.dumps({"message": "Pizza deleted"}).encode())
+                    self.wfile.write(json.dumps({"message": "pizza deleted"}).encode())
                 else:
                     self._set_headers(404)
-                    self.wfile.write(json.dumps({"error": "Pizza not found"}).encode())
+                    self.wfile.write(json.dumps({"error": "pizza not found"}).encode())
             except ValueError:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid pizza ID"}).encode())
+                self.wfile.write(json.dumps({"error": "invalid pizza ID"}).encode())
         else:
             self._set_headers(404)
-            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+            self.wfile.write(json.dumps({"error": "not found"}).encode())
 
-def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    print(f"Starting server on port {port}")
-    httpd.serve_forever()
 
-if __name__ == "__main__":
-    run()
+server_address = ('', 8000)
+httpd = HTTPServer(server_address, RequestHandler)
+print(f"Starting server on port {8000}")
+httpd.serve_forever()
+
