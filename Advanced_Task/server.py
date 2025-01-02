@@ -48,10 +48,47 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         global order_id_counter
+        if self.path == '/register':
+            data = self._parse_post_data()
+            username = data.get('username')
+            password = data.get('password')
+            address = data.get('address')
+
+            if username and password and address:
+                if username in users:
+                    self._set_headers(400)
+                    self.wfile.write(json.dumps({"error": "user already exists"}).encode())
+                else:
+                    users[username] = {"password": password, "address": address}
+                    self._set_headers(201)
+                    self.wfile.write(json.dumps({"message": "user registered succesfully"}).encode())
+            else:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "missing data"}).encode())
+
         if self.path == '/order':
             data = self._parse_post_data()
             pizza_id = data.get('pizza_id')
             address = data.get('address')
+            username = data.get('username')
+            password = data.get('password')
+
+            if username:
+                user = users.get(username)
+                if not user or user['password'] != password:
+                    print(users)
+                    print(username)
+                    print(password)
+                    print(users[username])
+                    self._set_headers(401)
+                    self.wfile.write(json.dumps({"error": "authentication failed"}).encode())
+                    return
+                address = address or user['address']
+
+            if not address:
+                print("you need to provide address")
+                return
+
             pizza = next((p for p in menu if p['id'] == pizza_id), None)
             if pizza and address:
                 order = {
@@ -135,8 +172,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "not found"}).encode())
 
 
-server_address = ('', 8000)
-httpd = HTTPServer(server_address, RequestHandler)
-print(f"Starting server on port {8000}")
-httpd.serve_forever()
+
+def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    print(f"running server on {port}")
+    httpd.serve_forever()
+
+run()
 

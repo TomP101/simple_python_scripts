@@ -13,8 +13,8 @@ def list_menu():
     else:
         print("failed to fetch menu")
 
-def create_order(pizza_id, address):
-    data = {"pizza_id": pizza_id, "address": address}
+def create_order(pizza_id, address=None, username=None, password=None):
+    data = {"pizza_id": pizza_id, "address": address,"username": username, "password": password}
     response = requests.post(f"{BASE_URL}/order", json=data)
     if response.status_code == 201:
         print(f"order created: {response.json()}")
@@ -60,17 +60,25 @@ def admin_cancel_order(token, order_id):
     else:
         print("failed to cancel order:", response.json())
 
-
+def register_user(username, password, address):
+    data = {"username": username, "password": password, "address": address}
+    response = requests.post(f"{BASE_URL}/register", json=data)
+    if response.status_code == 201:
+        print("user registered")
+    else:
+        print("failed to register")
 
 
    
    
 parser = argparse.ArgumentParser(description="Pizza Ordering CLI")
 parser.add_argument('command', help="Command to execute")
-parser.add_argument('-p', '--pizza_id', type=int, help="Pizza ID")
+parser.add_argument('-i', '--pizza_id', type=int, help="Pizza ID")
 parser.add_argument('-a', '--address', type=str, help="Delivery address")
 parser.add_argument('-o', '--order_id', type=int, help="Order ID")
 parser.add_argument('-t', '--token', type=str, help="Admin token")
+parser.add_argument('-u', '--username', type=str, help="username")
+parser.add_argument('-p', '--password', type=str, help="user password")
 parser.add_argument('-n', '--name', type=str, help="Pizza name")
 parser.add_argument('--price', type=float, help="Pizza price")
 
@@ -79,10 +87,17 @@ args = parser.parse_args()
 if args.command == "list_menu":
     list_menu()
 elif args.command == "create_order":
-    if args.pizza_id and args.address:
+    if args.pizza_id and args.address  :
         create_order(args.pizza_id, args.address)
+    elif args.pizza_id and args.username and args.password:
+        create_order(args.pizza_id, None, args.username, args.password)
     else:
         print("you need to provide pizza_id from the menu and your address")
+elif args.command == "register_user":
+    if args.username and args.password and args.address:
+        register_user(args.username, args.password, args.address)
+    else:
+        print("you need to provide name password and address")
 elif args.command == "check_order_status":
     if args.order_id:
         check_order_status(args.order_id)
