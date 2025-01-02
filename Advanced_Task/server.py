@@ -76,10 +76,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             if username:
                 user = users.get(username)
                 if not user or user['password'] != password:
-                    print(users)
-                    print(username)
-                    print(password)
-                    print(users[username])
                     self._set_headers(401)
                     self.wfile.write(json.dumps({"error": "authentication failed"}).encode())
                     return
